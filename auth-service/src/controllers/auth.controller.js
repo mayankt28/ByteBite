@@ -61,7 +61,46 @@ export const login = async (req, res) => {
         role: user.role
       }
     });
+
+    res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+      
   } catch (err) {
     res.status(500).json({ msg: 'Server error', error: err.message });
   }
 };
+
+// POST /api/auth/refresh
+export const refresh = async (req, res) => {
+    try {
+      const token = req.cookies?.refreshToken;
+      if (!token) return res.status(401).json({ msg: 'No refresh token provided' });
+  
+      jwt.verify(token, process.env.REFRESH_SECRET, async (err, decoded) => {
+        if (err) return res.status(403).json({ msg: 'Invalid refresh token' });
+  
+        const user = await User.findById(decoded.id);
+        if (!user) return res.status(404).json({ msg: 'User not found' });
+  
+        const accessToken = generateAccessToken(user);
+        res.json({ accessToken });
+      });
+    } catch (err) {
+      res.status(500).json({ msg: 'Server error', error: err.message });
+    }
+  };
+  
+  // POST /api/auth/logout
+export const logout = (req, res) => {
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    });
+    res.json({ msg: 'Logged out successfully' });
+  };
+  
