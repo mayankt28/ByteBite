@@ -1,6 +1,21 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import redis from '../config/redis.js';
+
+const generateRefreshToken = (user) => {
+  const refreshToken = jwt.sign(
+    { id: user._id },
+    process.env.REFRESH_SECRET,
+    { expiresIn: '7d' }
+  );
+
+  // Store refresh token in Redis
+  redis.set(`refreshToken:${user._id}`, refreshToken, 'EX', 7 * 24 * 60 * 60); // 7 days
+
+  return refreshToken;
+};
+
 
 const generateAccessToken = (user) => {
   return jwt.sign(
@@ -10,13 +25,7 @@ const generateAccessToken = (user) => {
   );
 };
 
-const generateRefreshToken = (user) => {
-  return jwt.sign(
-    { id: user._id },
-    process.env.REFRESH_SECRET,
-    { expiresIn: '7d' }
-  );
-};
+
 
 // POST /api/auth/register
 export const register = async (req, res) => {
@@ -76,31 +85,44 @@ export const login = async (req, res) => {
 
 // POST /api/auth/refresh
 export const refresh = async (req, res) => {
-    try {
-      const token = req.cookies?.refreshToken;
-      if (!token) return res.status(401).json({ msg: 'No refresh token provided' });
+    const token = req.cookies?.refreshToken;
+    if (!token) return res.status(401).json({ msg: 'No refresh token provided' });
   
-      jwt.verify(token, process.env.REFRESH_SECRET, async (err, decoded) => {
-        if (err) return res.status(403).json({ msg: 'Invalid refresh token' });
+    jwt.verify(token, process.env.REFRESH_SECRET, async (err, decoded) => {
+      if (err || !decoded?.id) return res.status(403).json({ msg: 'Invalid token' });
   
-        const user = await User.findById(decoded.id);
-        if (!user) return res.status(404).json({ msg: 'User not found' });
+      const storedToken = await redis.get(`refreshToken:${decoded.id}`);
+      if (storedToken !== token) return res.status(403).json({ msg: 'Token does not match stored token' });
   
-        const accessToken = generateAccessToken(user);
-        res.json({ accessToken });
-      });
-    } catch (err) {
-      res.status(500).json({ msg: 'Server error', error: err.message });
-    }
+      const user = await User.findById(decoded.id);
+      if (!user) return res.status(404).json({ msg: 'User not found' });
+  
+      const accessToken = generateAccessToken(user);
+      res.json({ accessToken });
+    });
   };
   
+  
   // POST /api/auth/logout
-export const logout = (req, res) => {
+  export const logout = async (req, res) => {
+    try {
+      const token = req.cookies?.refreshToken;
+      if (token) {
+        const decoded = jwt.verify(token, process.env.REFRESH_SECRET);
+        if (decoded?.id) {
+          await redis.del(`refreshToken:${decoded.id}`);
+        }
+      }
+    } catch (err) {
+      console.log('Error clearing refresh token from Redis:', err.message);
+    }
+  
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict'
     });
+  
     res.json({ msg: 'Logged out successfully' });
   };
   
