@@ -2,6 +2,9 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import redis from '../config/redis.js';
+import { publishUserCreated } from '../kafka/producer.js'; 
+
+
 
 const generateRefreshToken = (user) => {
   const refreshToken = jwt.sign(
@@ -39,6 +42,7 @@ export const register = async (req, res) => {
     const newUser = new User({ name, email, password: hashedPassword, role });
 
     await newUser.save();
+    await publishUserCreated(newUser);
 
     res.status(201).json({ msg: 'User registered successfully' });
   } catch (err) {
