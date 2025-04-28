@@ -6,6 +6,10 @@ import { initConsumer } from './kafka/consumer.js';
 import { initProducer } from './kafka/producer.js';
 import orderRoutes from './routes/orderRoutes.js';
 import restaurantRoutes from './routes/restaurantRoutes.js';
+import { ensureBucketExists } from './utils/minioClient.js';
+
+
+
 
 dotenv.config();
 
@@ -23,5 +27,6 @@ app.get('/api/restaurant/health', (req, res) => {
 connectDB();
 initProducer();
 initConsumer();
+await ensureBucketExists();
 
 export default app;
