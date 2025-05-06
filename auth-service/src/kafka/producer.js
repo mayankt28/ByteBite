@@ -7,12 +7,20 @@ const kafka = new Kafka({
 
 const producer = kafka.producer();
 
-const connectProducer = async () => {
-  try {
-    await producer.connect();
-    console.log("Kafka Producer connected");
-  } catch (err) {
-    console.error("Kafka Producer connection error:", err);
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const connectProducer = async (retries = 5, delay = 5000) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      await producer.connect();
+      console.log('✅ Kafka producer connected');
+      return;
+    } catch (err) {
+      console.error(`❌ Kafka connection failed (attempt ${i + 1}):`, err.message);
+      if (i === retries - 1) throw err;
+      console.log(`⏳ Retrying Kafka connection in ${delay / 1000}s...`);
+      await wait(delay);
+    }
   }
 };
 

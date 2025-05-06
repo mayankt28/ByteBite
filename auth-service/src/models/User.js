@@ -21,8 +21,15 @@ const userSchema = new mongoose.Schema({
 
   role: {
     type: String,
-    enum: ['customer', 'admin'],
+    enum: ['customer', 'employee', 'manager', 'admin'],
     default: 'customer'
+  },
+
+  restaurantId: {
+    type: String, 
+    required: function () {
+      return this.role === 'employee' || this.role === 'manager';
+    }
   }
 }, { timestamps: true });
 

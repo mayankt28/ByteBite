@@ -21,25 +21,35 @@ const generateRefreshToken = (user) => {
 
 
 const generateAccessToken = (user) => {
-  return jwt.sign(
-    { id: user._id, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: '15m' }
-  );
+  const payload = {
+    id: user._id,
+    role: user.role
+  };
+
+  if (user.role === 'employee' || user.role === 'manager') {
+    payload.restaurantId = user.restaurantId;
+  }
+
+  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '15m' });
 };
+
 
 
 
 // POST /api/auth/register
 export const register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, restaurantId } = req.body;
+
+    if ((role === 'employee' || role === 'manager') && !restaurantId) {
+      return res.status(400).json({ msg: 'restaurantId is required for employees or managers' });
+    }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ msg: 'Email already exists' });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ name, email, password: hashedPassword, role });
+    const newUser = new User({ name, email, password: hashedPassword, role, restaurantId });
 
     await newUser.save();
     await publishUserCreated(newUser);
@@ -49,6 +59,7 @@ export const register = async (req, res) => {
     res.status(500).json({ msg: 'Server error', error: err.message });
   }
 };
+
 
 // POST /api/auth/login
 export const login = async (req, res) => {
@@ -71,16 +82,18 @@ export const login = async (req, res) => {
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
       });
 
-    res.json({
-      accessToken,
-      refreshToken,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
-    });
+      res.json({
+        accessToken,
+        refreshToken,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          ...(user.role === 'employee' || user.role === 'manager' ? { restaurantId: user.restaurantId } : {})
+        }
+      });
+      
       
   } catch (err) {
     res.status(500).json({ msg: 'Server error', error: err.message });
