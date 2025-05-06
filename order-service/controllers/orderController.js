@@ -3,10 +3,25 @@ import { emitOrderPlaced, emitOrderCancelled } from '../kafka/producer.js';
 
 export const placeOrder = async (req, res) => {
   try {
-    const { restaurantId, items } = req.body;
+    const {
+      restaurantId,
+      items,
+      totalAmount,
+      discount = 0,
+      taxAmount,
+      paymentMethod,
+      deliveryTime,
+      priority = 'normal',
+      source,
+      deliveryMethod,
+      itemsSubtotal,
+      referralCode,
+      deliveryArea
+    } = req.body;
 
-    if (!restaurantId || !Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({ error: 'Invalid order data' });
+    // Basic validations
+    if (!restaurantId || !Array.isArray(items) || items.length === 0 || !paymentMethod || !source || !deliveryMethod) {
+      return res.status(400).json({ error: 'Missing required fields' });
     }
 
     for (const item of items) {
@@ -19,6 +34,17 @@ export const placeOrder = async (req, res) => {
       userId: req.user.id,
       restaurantId,
       items,
+      totalAmount,
+      discount,
+      taxAmount,
+      paymentMethod,
+      deliveryTime,
+      priority,
+      source,
+      deliveryMethod,
+      itemsSubtotal,
+      referralCode,
+      deliveryArea,
     });
 
     await emitOrderPlaced(order);
@@ -28,6 +54,7 @@ export const placeOrder = async (req, res) => {
     res.status(500).json({ error: 'Could not place order' });
   }
 };
+
 
 export const getOrderById = async (req, res) => {
   try {
@@ -58,36 +85,22 @@ export const getUserOrders = async (req, res) => {
 };
 
 export const cancelOrder = async (req, res) => {
-    try {
-      const order = await Order.findById(req.params.id);
-  
-      if (!order) {
-        return res.status(404).json({ error: 'Order not found' });
-      }
-  
-      if (order.userId !== req.user.id) {
-        return res.status(403).json({ error: 'Unauthorized' });
-      }
-  
-      if (order.status === 'cancelled') {
-        return res.status(400).json({ error: 'Order is already cancelled' });
-      }
-  
-      if (order.status !== 'placed') {
-        return res.status(400).json({ error: `Cannot cancel order when status is '${order.status}'` });
-      }
-  
-      order.status = 'cancelled';
-      await order.save();
-  
-      // Emit Kafka event
-      await emitOrderCancelled(order);
-  
-      res.json({ message: 'Order cancelled successfully', order });
-    } catch (err) {
-      console.error('Error cancelling order:', err);
-      res.status(500).json({ error: 'Could not cancel order' });
-    }
-  };
-  
-  
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    if (order.userId !== req.user.id) return res.status(403).json({ error: 'Unauthorized' });
+    if (order.status === 'cancelled') return res.status(400).json({ error: 'Order already cancelled' });
+    if (order.status !== 'placed') return res.status(400).json({ error: `Cannot cancel order when status is '${order.status}'` });
+
+    order.status = 'cancelled';
+    order.cancellationReason = req.body.cancellationReason || 'customer_request';
+    await order.save();
+
+    await emitOrderCancelled(order);
+    res.json({ message: 'Order cancelled successfully', order });
+  } catch (err) {
+    console.error('Error cancelling order:', err);
+    res.status(500).json({ error: 'Could not cancel order' });
+  }
+};
