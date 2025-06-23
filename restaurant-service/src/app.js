@@ -6,7 +6,7 @@ import { initConsumer } from './kafka/consumer.js';
 import { initProducer } from './kafka/producer.js';
 import orderRoutes from './routes/orderRoutes.js';
 import restaurantRoutes from './routes/restaurantRoutes.js';
-import { ensureBucketExists } from './utils/minioClient.js';
+import { ensureBucketExists } from './utils/upload.js';
 
 
 
@@ -18,7 +18,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/restaurant/orders', orderRoutes);
+app.use('/api/orders', orderRoutes);
 app.use('/api/restaurant', restaurantRoutes);
 app.get('/api/restaurant/health', (req, res) => {
   res.status(200).json({ status: 'Restaurant service is running' });

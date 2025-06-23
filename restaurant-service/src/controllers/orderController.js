@@ -1,11 +1,18 @@
 import { Order } from '../models/Order.js';
 import { emitOrderStatusUpdated } from '../kafka/producer.js';
 
-// Fetch all pending orders
+// Fetch all pending orders for a restaurant
 export const getPendingOrders = async (req, res) => {
+  const { restaurantId } = req.query;
+
+  if (!restaurantId) {
+    return res.status(400).json({ error: 'restaurantId is required' });
+  }
+
   try {
     const orders = await Order.find({
-      status: { $in: ['placed', 'preparing'] }
+      restaurantId,
+      status: { $in: ['placed', 'preparing'] },
     });
     res.json(orders);
   } catch (err) {

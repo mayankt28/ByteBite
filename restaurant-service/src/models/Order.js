@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 
 const orderSchema = new mongoose.Schema({
-  orderId: { type: String, required: true }, // from order-service
+  orderId: { type: String, required: true },
   userId: { type: String, required: true },
-  restaurantId: { type: String, required: true },
+  restaurantId: { type: String, required: true, index: true }, // Add index
   items: [
     {
       itemId: { type: String, required: true },
@@ -15,7 +15,6 @@ const orderSchema = new mongoose.Schema({
     enum: ['placed', 'preparing', 'ready', 'completed', 'cancelled'],
     default: 'placed',
   },
-  createdAt: { type: Date, default: Date.now }
-});
+}, { timestamps: true }); 
 
 export const Order = mongoose.model('Order', orderSchema);

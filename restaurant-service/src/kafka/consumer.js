@@ -8,8 +8,29 @@ const kafka = new Kafka({
 
 const consumer = kafka.consumer({ groupId: 'restaurant-group' });
 
+const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const connectWithRetry = async (retries = 5, delay = 5000) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      await consumer.connect();
+      console.log('✅ Kafka consumer connected');
+      return;
+    } catch (err) {
+      console.error(`❌ Kafka connection failed (attempt ${i + 1}):`, err.message);
+      if (i < retries - 1) {
+        console.log(`🔁 Retrying in ${delay / 1000}s...`);
+        await wait(delay);
+      } else {
+        throw new Error('Kafka connection failed after maximum retries');
+      }
+    }
+  }
+};
+
+
 export const initConsumer = async () => {
-  await consumer.connect();
+  await connectWithRetry();
   await consumer.subscribe({ topic: 'order.placed', fromBeginning: false });
   await consumer.subscribe({ topic: 'order.cancelled', fromBeginning: false });
 
@@ -31,10 +52,10 @@ export const initConsumer = async () => {
 
 const handleOrderPlaced = async (data) => {
   try {
-    const { _id, userId, restaurantId, items } = data;
+    const { orderId, userId, restaurantId, items } = data;
 
     const newOrder = new Order({
-      orderId: _id,
+      orderId,
       userId,
       restaurantId,
       items,
