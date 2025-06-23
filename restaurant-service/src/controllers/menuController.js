@@ -1,9 +1,10 @@
 import { Restaurant } from '../models/Restaurant.js';
+import { emitMenuItemCreated } from '../kafka/producer.js';
 
 export const addMenuItem = async (req, res) => {
   try {
     const { restaurantId: restaurantId } = req.params;
-    const { name, price } = req.body;
+    const { name, price, description } = req.body;
     let imageUrl = req.file ? req.file.location : null;
 
     if (!name || !price) {
@@ -22,12 +23,17 @@ export const addMenuItem = async (req, res) => {
 
     const newItem = {         
       name,
+      description,
       price: numericPrice,      
       image: imageUrl,
     };
 
     restaurant.menu.push(newItem);
     await restaurant.save();
+
+    const createdItem = restaurant.menu[restaurant.menu.length - 1];
+
+    await emitMenuItemCreated(createdItem, restaurant._id.toString());
 
     res.status(201).json(newItem);
   } catch (err) {

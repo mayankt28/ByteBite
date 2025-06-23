@@ -45,3 +45,30 @@ export const emitOrderStatusUpdated = async (order) => {
 
   console.log('Kafka: order_status_updated event sent');
 };
+
+/**
+ * Emits a menu_item_created event
+ * @param {Object} item - The menu item document
+ * @param {String} restaurantId - ID of the restaurant
+ */
+export const emitMenuItemCreated = async (item, restaurantId) => {
+  const message = {
+    event: 'menu_item_created',
+    data: {
+      menuItemId: item._id.toString(),
+      restaurantId,
+      name: item.name,
+      description: item.description || '',
+      price: item.price,
+      image: item.image || '',
+    },
+    timestamp: new Date().toISOString(),
+  };
+
+  await producer.send({
+    topic: 'menu_item_created',
+    messages: [{ value: JSON.stringify(message) }],
+  });
+
+  console.log(`Kafka: menu_item_created event sent for item ${item._id}`);
+};
