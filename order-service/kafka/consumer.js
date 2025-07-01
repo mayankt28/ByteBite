@@ -1,6 +1,7 @@
 import { Kafka } from 'kafkajs';
 import { Order } from '../models/Order.js';
 import { sendOrderUpdateToUser } from '../websocket/socketServer.js'
+import { emitOrderCompleted } from  './producer.js'
 
 const kafka = new Kafka({
   clientId: 'order-service',
@@ -52,6 +53,12 @@ export const initConsumer = async () => {
         order.status = status;
         await order.save();
         sendOrderUpdateToUser(order.userId, status);
+
+        // Emit order_completed if status is completed
+        if (status === 'completed') {
+          await emitOrderCompleted(order);
+        }
+
       } catch (err) {
         console.error(`Failed to update order ${orderId}:`, err);
       }

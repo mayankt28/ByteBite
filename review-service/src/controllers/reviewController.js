@@ -1,5 +1,6 @@
 import Review from '../models/Review.js';
 import MenuItemReview from '../models/MenuItemReview.js';
+import { emitReviewUpdated, emitReviewDeleted, emitReviewCreated } from '../kafka/producer.js';
 
 // Submit a review
 export const createReview = async (req, res) => {
@@ -25,6 +26,8 @@ export const createReview = async (req, res) => {
             summary.recentComments = comments;
             await summary.save();
         }
+        await emitReviewCreated(review, summary.restaurantId);
+
 
         res.status(201).json({ message: 'Review added', review });
     } catch (error) {
@@ -82,6 +85,7 @@ export const editReview = async (req, res) => {
       summary.recentComments = comments.slice(0, 3);
     }
     if (summary) await summary.save();
+    await emitReviewUpdated(review, summary.restaurantId);
 
     res.json({ message: 'Review updated', review });
   } catch (error) {
@@ -123,6 +127,7 @@ export const deleteReview = async (req, res) => {
       }
       await summary.save();
     }
+    await emitReviewDeleted(review, summary.restaurantId);
 
     res.json({ message: 'Review deleted' });
   } catch (error) {

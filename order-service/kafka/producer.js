@@ -68,6 +68,8 @@ export const emitOrderCancelled = async (order) => {
     status: 'cancelled',
     cancellationReason: order.cancellationReason,
     refundedAmount: order.refundedAmount,
+    totalAmount: order.totalAmount, 
+    createdAt: order.createdAt, 
   });
 
   await producer.send({
@@ -76,5 +78,28 @@ export const emitOrderCancelled = async (order) => {
   });
 
   console.log('Kafka: order_cancelled event sent');
+};
+
+export const emitOrderCompleted = async (order) => {
+  const message = {
+    event: 'order_completed',
+    data: {
+      orderId: order._id,
+      userId: order.userId,
+      restaurantId: order.restaurantId,
+      totalAmount: order.totalAmount,
+      completedAt: order.completedAt || new Date().toISOString(),
+      deliveryMethod: order.deliveryMethod,
+      source: order.source,
+    },
+    timestamp: new Date().toISOString(),
+  };
+
+  await producer.send({
+    topic: 'order.completed',
+    messages: [{ value: JSON.stringify(message) }],
+  });
+
+  console.log('Kafka: order_completed event sent');
 };
 
