@@ -85,7 +85,7 @@ export const editReview = async (req, res) => {
       summary.recentComments = comments.slice(0, 3);
     }
     if (summary) await summary.save();
-    await emitReviewUpdated(review, summary.restaurantId);
+    await emitReviewUpdated(review, oldRating, summary.restaurantId);
 
     res.json({ message: 'Review updated', review });
   } catch (error) {
