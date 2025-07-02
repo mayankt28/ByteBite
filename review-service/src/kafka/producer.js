@@ -46,7 +46,7 @@ export const emitReviewCreated = async (review, restaurantId) => {
   console.log('✅ Sent review.created event');
 };
 
-export const emitReviewUpdated = async (review, restaurantId) => {
+export const emitReviewUpdated = async (review, oldRating, restaurantId) => {
   const message = {
     event: 'review.updated',
     data: {
@@ -55,6 +55,7 @@ export const emitReviewUpdated = async (review, restaurantId) => {
       restaurantId,
       userId: review.userId,
       rating: review.rating,
+      oldRating,
       comment: review.comment,
       updatedAt: new Date().toISOString(),
     },
@@ -74,6 +75,7 @@ export const emitReviewDeleted = async (review, restaurantId) => {
     event: 'review.deleted',
     data: {
       reviewId: review._id,
+      rating: review.rating,
       menuItemId: review.menuItemId,
       restaurantId,
       userId: review.userId,

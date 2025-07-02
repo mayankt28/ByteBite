@@ -35,10 +35,17 @@ const startConsumer = async () => {
 
   await consumer.run({
     eachMessage: async ({ topic, partition, message }) => {
-      const data = JSON.parse(message.value.toString());
-      console.log('Received event from Kafka:', data);
-
       try {
+        const eventMessage = JSON.parse(message.value.toString());
+        const { event, data } = eventMessage;
+
+        console.log('Received event from Kafka:', eventMessage);
+
+        if (event !== 'user_created' || !data) {
+          console.warn('⚠️ Unknown or improperly formatted event received');
+          return;
+        }
+
         const existing = await Profile.findOne({ userId: data.userId });
         if (!existing) {
           await Profile.create({
@@ -46,13 +53,15 @@ const startConsumer = async () => {
             name: data.name,
             email: data.email,
           });
-          console.log("Profile created for user:", data.userId);
+          console.log("✅ Profile created for user:", data.userId);
         }
+
       } catch (err) {
-        console.error("Error creating profile from Kafka event:", err.message);
+        console.error("❌ Error processing Kafka message:", err.message);
       }
     },
   });
 };
+
 
 export default startConsumer;
