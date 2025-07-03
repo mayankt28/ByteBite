@@ -38,11 +38,14 @@ docker-compose up --build
 
 | Service              | URL                                |
 |---------------------|-------------------------------------|
-| Authentication      | http://localhost:<auth-port>       |
-| Profile Service     | http://localhost:<profile-port>    |
-| Order Service       | http://localhost:<order-port>      |
-| Restaurant Service  | http://localhost:<order-port>      |
-| MongoDB, Redis, Kafka | Managed within containers       |
+| Authentication      | http://localhost:5006               |
+| Profile Service     | http://localhost:5001               |
+| Order Service       | http://localhost:5002               |
+| Restaurant Service  | http://localhost:5003               |
+| Review Service      | http://localhost:5004               |
+| Analytics Service   | http://localhost:5005               |
+| Gateway             | http://localhost:3000               |
+| MongoDB, Redis, Kafka | Managed within containers         |
 
 ### Development Workflow
 
@@ -60,6 +63,9 @@ bytebite/
 ├── profile-service/      # Manages user profile creation and updates
 ├── order-service/        # Processes orders and tracks order status
 ├── restaurant-service/   # Manages restaurant related tasks
+├── review-service/       # Handles item reviews
+├── analytics-service/    # Provides all the restaurant and user analytics
+├── gateway/              # Provides a common endpoint for connecting to all the services
 ├── docker-compose.yml    # Multi-service orchestration file
 └── README.md              # Project overview and instructions
 ```
