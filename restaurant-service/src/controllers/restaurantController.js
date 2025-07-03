@@ -97,7 +97,10 @@ export const getRestaurant = async (req, res) => {
 
 export const getAllRestaurants = async (req, res) => {
   try {
-    const restaurants = await Restaurant.find({ isDeleted: false });
+    const restaurants = await Restaurant.find(
+      { isDeleted: false },
+      { menu: 0 } 
+    );
 
     res.json(restaurants);
   } catch (err) {
@@ -105,3 +108,4 @@ export const getAllRestaurants = async (req, res) => {
     res.status(500).json({ error: 'Failed to get restaurants' });
   }
 };
+
