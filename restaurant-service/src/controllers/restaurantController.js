@@ -6,7 +6,7 @@ export const getRestaurantDetails = async (req, res) => {
 
     const restaurant = await Restaurant.findById(restaurantId).lean();
 
-    if (!restaurant) {
+    if (!restaurant || restaurant.isDeleted) {
       return res.status(404).json({ error: 'Restaurant not found' });
     }
 
@@ -19,15 +19,20 @@ export const getRestaurantDetails = async (req, res) => {
 
 export const createRestaurant = async (req, res) => {
   try {
-    const { name, address } = req.body;
+    const { name, address, description, categories } = req.body;
 
     if (!name) {
       return res.status(400).json({ error: 'Restaurant name is required' });
     }
 
-    const restaurant = new Restaurant({ name, address });
-    await restaurant.save();
+    const restaurant = new Restaurant({
+      name,
+      address,
+      description,
+      categories,
+    });
 
+    await restaurant.save();
     res.status(201).json(restaurant);
   } catch (err) {
     console.error('Create restaurant error:', err);
@@ -38,11 +43,11 @@ export const createRestaurant = async (req, res) => {
 export const updateRestaurant = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, address } = req.body;
+    const { name, address, description, categories } = req.body;
 
     const restaurant = await Restaurant.findOneAndUpdate(
       { _id: id, isDeleted: false },
-      { name, address },
+      { name, address, description, categories },
       { new: true }
     );
 
@@ -108,4 +113,3 @@ export const getAllRestaurants = async (req, res) => {
     res.status(500).json({ error: 'Failed to get restaurants' });
   }
 };
-
