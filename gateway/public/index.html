@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ByteBite API Documentation</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 20px;
+    max-width: 1000px;
+    color: #222;
+  }
+  h1, h2, h3, h4 {
+    color: #2c3e50;
+  }
+  h1 {
+    font-size: 2em;
+    margin-bottom: 0.25em;
+  }
+  h2 {
+    margin-top: 1.5em;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 0.3em;
+  }
+  h3 {
+    margin-top: 1.2em;
+  }
+  hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 2em 0;
+  }
+  pre {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 12px 16px;
+    border-radius: 6px;
+    overflow-x: auto;
+    white-space: pre-wrap; /* Wrap long lines */
+    margin: 0.5em 0 1.2em 0;
+    font-size: 0.95em;
+  }
+  code {
+    font-family: "Courier New", Courier, monospace;
+    background: #f4f4f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.95em;
+  }
+  ul {
+    padding-left: 1.3em;
+  }
+  li {
+    margin-bottom: 1.5em;
+  }
+  li > code {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 0.3em;
+  }
+  li > div {
+    margin-left: 1em;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0 2em 0;
+  }
+  table, th, td {
+    border: 1px solid #bbb;
+  }
+  th, td {
+    padding: 10px 12px;
+    text-align: left;
+  }
+  th {
+    background: #eee;
+  }
+  p {
+    margin: 0.6em 0;
+  }
+</style>
+</head>
+<body>
+
+<h1>ByteBite 🍽️ - Scalable Restaurant Ordering Platform</h1>
+<p>ByteBite is a scalable, microservices-based food ordering platform designed for high performance, modularity, and reliability. It empowers restaurant owners to manage menus, process orders in real-time, and provides customers with a seamless, secure ordering experience.</p>
+<p>The system follows a modern, event-driven architecture using Dockerized microservices and industry-standard technologies.</p>
+
+<hr>
+
+<!-- Analytics Service -->
+<h2>Analytics Service API Documentation</h2>
+<p><strong>Base URL:</strong> <code>/api/analytics</code></p>
+<p>All responses are JSON formatted.<br>Access to all endpoints is protected by the <code>checkAnalyticsAccess</code> middleware.</p>
+
+<h3>User Analytics</h3>
+
+<h4>GET <code>/users/summary</code></h4>
+<p>Get overall user analytics summary.</p>
+<p><strong>Response:</strong></p>
+<pre><code>{
+  // Object containing user analytics data
+}</code></pre>
+
+<hr>
+
+<h4>GET <code>/users/growth</code></h4>
+<p>Get daily user registration growth data.</p>
+<p><strong>Response:</strong></p>
+<pre><code>[
+  // Array of daily registrations data points
+]</code></pre>
+
+<hr>
+
+<h3>Order Analytics</h3>
+
+<h4>GET <code>/orders/summary</code></h4>
+<p>Get order summary statistics (platform-wide).</p>
+
+<h4>GET <code>/orders/:restaurantId/summary</code></h4>
+<p>Get order summary statistics for a specific restaurant.</p>
+<p><strong>Query Parameters:</strong></p>
+<ul>
+  <li><code>date</code> (optional) — filter by specific date (e.g. <code>2025-07-06</code>)</li>
+</ul>
+<p><strong>Response:</strong></p>
+<pre><code>[
+  // Array of order analytics objects
+]</code></pre>
+
+<hr>
+
+<h4>GET <code>/orders/timeseries</code></h4>
+<p>Get timeseries data of orders (platform-wide).</p>
+
+<h4>GET <code>/orders/:restaurantId/timeseries</code></h4>
+<p>Get timeseries data of orders for a specific restaurant.</p>
+<p><strong>Response:</strong></p>
+<pre><code>[
+  // Array of order analytics sorted by date ascending
+]</code></pre>
+
+<hr>
+
+<h4>GET <code>/orders/referrals</code></h4>
+<p>Get total referral count (platform-wide).</p>
+
+<h4>GET <code>/orders/:restaurantId/referrals</code></h4>
+<p>Get total referral count for a specific restaurant.</p>
+<p><strong>Response:</strong></p>
+<pre><code>{
+  "totalReferrals": number
+}</code></pre>
+
+<hr>
+
+<h4>GET <code>/orders/delivery-areas</code></h4>
+<p>Get delivery area statistics (platform-wide).</p>
+
+<h4>GET <code>/orders/:restaurantId/delivery-areas</code></h4>
+<p>Get delivery area statistics for a specific restaurant.</p>
+<p><strong>Response:</strong></p>
+<pre><code>{
+  "areaName": count,
+  ...
+}</code></pre>
+
+<hr>
+
+<h3>Review Analytics</h3>
+
+<h4>GET <code>/reviews/summary</code></h4>
+<p>Get review summary. If <code>restaurantId</code> is provided, returns summary for that restaurant; otherwise, platform-wide.</p>
+
+<h4>GET <code>/reviews/:restaurantId/summary</code></h4>
+<p>Get review summary for a specific restaurant.</p>
+<p><strong>Response:</strong></p>
+<pre><code>{
+  "totalReviews": number,
+  "averageRating": number,
+  ...
+}</code></pre>
+
+<hr>
+
+<h4>GET <code>/reviews/:restaurantId/rating-distribution</code></h4>
+<p>Get rating distribution for a specific restaurant.</p>
+<p><strong>Response:</strong></p>
+<pre><code>{
+  // e.g., "5 stars": count, "4 stars": count, ...
+}</code></pre>
+
+<hr>
+
+<h4>GET <code>/reviews/top-rated-items</code></h4>
+<p>Get top 10 rated menu items platform-wide.</p>
+<p><strong>Response:</strong></p>
+<pre><code>[
+  {
+    "menuItemId": "string",
+    "averageRating": number,
+    "totalReviews": number,
+    ...
+  },
+  ...
+]</code></pre>
+
+<hr>
+
+<h3>Restaurant Performance Analytics</h3>
+
+<h4>GET <code>/restaurants/top</code></h4>
+<p>Get top 5 restaurants by total revenue and average rating.</p>
+
+<h4>GET <code>/restaurants/low-rated</code></h4>
+<p>Get bottom 5 restaurants by average rating.</p>
+<p><strong>Response:</strong></p>
+<pre><code>[
+  {
+    "restaurantId": "string",
+    "totalRevenue": number,
+    "averageRating": number,
+    ...
+  },
+  ...
+]</code></pre>
+
+<hr>
+
+<h3>Error Codes Summary</h3>
+<table>
+  <thead>
+    <tr><th>Status Code</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>200</td><td>Success</td></tr>
+    <tr><td>400</td><td>Bad Request (missing or invalid parameters)</td></tr>
+    <tr><td>401</td><td>Unauthorized (missing/invalid access)</td></tr>
+    <tr><td>403</td><td>Forbidden (no access permission)</td></tr>
+    <tr><td>500</td><td>Internal Server Error</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<!-- Auth Service -->
+<h2>Auth Service API Documentation</h2>
+<p><strong>Base URL:</strong> <code>/api/auth</code></p>
+<p>All responses are in JSON format.<br>Secure cookies (<code>refreshToken</code>) are used for session management.</p>
+
+<h3>Endpoints</h3>
+
+<h4>POST <code>/register</code></h4>
+<p>Register a new user</p>
+<p><strong>Description:</strong><br>Creates a new user account. If the role is <code>employee</code> or <code>manager</code>, <code>restaurantId</code> is required.</p>
+<p><strong>Request Body:</strong></p>
+<pre><code>{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "yourPassword123",
+  "role": "user | employee | manager",
+  "restaurantId": "optional for employees/managers only"
+}</code></pre>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>201 Created</code><br><pre><code>{ "msg": "User registered successfully" }</code></pre></li>
+  <li><code>400 Bad Request</code><br><pre><code>{ "msg": "Email already exists" }</code></pre></li>
+  <li><code>500 Server Error</code><br><pre><code>{ "msg": "Server error", "error": "Error details" }</code></pre></li>
+</ul>
+<p><strong>Authentication:</strong> Public</p>
+
+<hr>
+
+<h4>POST <code>/login</code></h4>
+<p>User login</p>
+<p><strong>Description:</strong><br>Authenticates user credentials, issues <code>accessToken</code>, and sets <code>refreshToken</code> cookie.</p>
+<p><strong>Request Body:</strong></p>
+<pre><code>{
+  "email": "john@example.com",
+  "password": "yourPassword123"
+}</code></pre>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code><br><pre><code>{
+  "accessToken": "jwt-access-token",
+  "refreshToken": "jwt-refresh-token",
+  "user": {
+    "id": "userId",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "role": "user | employee | manager",
+    "restaurantId": "included for employees/managers only"
+  }
+}</code></pre></li>
+  <li><code>400 Bad Request</code><br><pre><code>{ "msg": "Invalid credentials" }</code></pre></li>
+  <li><code>500 Server Error</code><br><pre><code>{ "msg": "Server error", "error": "Error details" }</code></pre></li>
+</ul>
+<p>✅ <code>refreshToken</code> is stored as an <strong>HTTP-Only Secure Cookie</strong></p>
+<p><strong>Authentication:</strong> Public</p>
+
+<hr>
+
+<h4>POST <code>/refresh</code></h4>
+<p>Refresh access token</p>
+<p><strong>Description:</strong><br>Validates refresh token from cookies and issues a new access token.</p>
+<p><strong>Request:</strong> No body required. Expects <code>refreshToken</code> cookie to be present.</p>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li>
+    <code>200 OK</code>
+    <div><pre><code>{ "accessToken": "new-jwt-access-token" }</code></pre></div>
+  </li>
+  <li>
+    <code>401 Unauthorized</code>
+    <div><pre><code>{ "msg": "No refresh token provided" }</code></pre></div>
+  </li>
+  <li>
+    <code>403 Forbidden</code>
+    <div><pre><code>{ "msg": "Invalid token" }</code></pre></div>
+  </li>
+  <li>
+    <code>404 Not Found</code>
+    <div><pre><code>{ "msg": "User not found" }</code></pre></div>
+  </li>
+</ul>
+<p><strong>Authentication:</strong> Requires valid <code>refreshToken</code> cookie</p>
+
+<hr>
+
+<h4>POST <code>/logout</code></h4>
+<p>User logout</p>
+<p><strong>Description:</strong><br>Clears the refresh token from Redis and browser cookies.</p>
+<p><strong>Request:</strong> No body required. Uses <code>refreshToken</code> cookie for identification.</p>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code><br><pre><code>{ "msg": "Logged out successfully" }</code></pre></li>
+</ul>
+<p><strong>Notes:</strong> Even if token clearing fails, cookie is removed for client security.</p>
+<p><strong>Authentication:</strong> Requires valid <code>refreshToken</code> cookie (if present)</p>
+
+<hr>
+
+<h3>Token Details</h3>
+<table>
+  <thead>
+    <tr><th>Token Type</th><th>Storage</th><th>Expiration</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Access Token</td><td>Returned in response</td><td>15 minutes</td></tr>
+    <tr><td>Refresh Token</td><td>Secure HTTP-Only Cookie</td><td>7 days</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Errors</h3>
+<table>
+  <thead>
+    <tr><th>Status Code</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>200</td><td>Success</td></tr>
+    <tr><td>201</td><td>Resource created</td></tr>
+    <tr><td>400</td><td>Bad request (missing fields, invalid input)</td></tr>
+    <tr><td>401</td><td>Unauthorized (missing token)</td></tr>
+    <tr><td>403</td><td>Forbidden (invalid token)</td></tr>
+    <tr><td>404</td><td>Resource not found</td></tr>
+    <tr><td>500</td><td>Internal server error</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<!-- Order Service -->
+<h2>Order Service API Documentation</h2>
+<p><strong>Base URL:</strong> <code>/api/orders</code></p>
+<p>All responses are in JSON format.<br>All endpoints (except test-update) require Authentication (Bearer Token).</p>
+
+<h3>Endpoints</h3>
+
+<h4>POST <code>/</code></h4>
+<p>Place a new order</p>
+<p><strong>Description:</strong><br>Creates a new order for the authenticated user.</p>
+<p><strong>Authentication:</strong> Required (Bearer Token)</p>
+<p><strong>Request Body:</strong></p>
+<pre><code>{
+  "restaurantId": "string",
+  "items": [
+    { "itemId": "string", "quantity": 2 }
+  ],
+  "totalAmount": 50.00,
+  "discount": 5.00,
+  "taxAmount": 2.50,
+  "paymentMethod": "card | cash",
+  "deliveryTime": "2024-07-06T18:00:00Z",
+  "priority": "normal | high",
+  "source": "mobile | web",
+  "deliveryMethod": "pickup | delivery",
+  "itemsSubtotal": 42.50,
+  "referralCode": "optional",
+  "deliveryArea": "optional"
+}</code></pre>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>201 Created</code> — Returns order details</li>
+  <li><code>400 Bad Request</code> — Missing or invalid fields</li>
+  <li><code>500 Server Error</code> — Could not place order</li>
+</ul>
+
+<hr>
+
+<h4>GET <code>/:id</code></h4>
+<p>Get order by ID</p>
+<p><strong>Description:</strong><br>Fetch order details for a specific order. Only allows access to orders belonging to the authenticated user.</p>
+<p><strong>Authentication:</strong> Required (Bearer Token)</p>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code> — Returns order details</li>
+  <li><code>403 Forbidden</code> — Accessing another user's order</li>
+  <li><code>404 Not Found</code> — Order does not exist</li>
+  <li><code>500 Server Error</code> — Could not fetch order</li>
+</ul>
+
+<hr>
+
+<h4>GET <code>/</code></h4>
+<p>Get all orders for user</p>
+<p><strong>Description:</strong><br>Fetches all orders placed by the authenticated user.</p>
+<p><strong>Authentication:</strong> Required (Bearer Token)</p>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code> — Returns array of orders</li>
+  <li><code>500 Server Error</code> — Could not fetch orders</li>
+</ul>
+
+<hr>
+
+<h4>PATCH <code>/:id/cancel</code></h4>
+<p>Cancel an order</p>
+<p><strong>Description:</strong><br>Cancels an order placed by the authenticated user if the order is still in <code>placed</code> status.</p>
+<p><strong>Authentication:</strong> Required (Bearer Token)</p>
+<p><strong>Request Body (optional):</strong></p>
+<pre><code>{ "cancellationReason": "optional string" }</code></pre>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code> — Order cancelled successfully</li>
+  <li><code>400 Bad Request</code> — Order already cancelled or cannot be cancelled</li>
+  <li><code>404 Not Found</code> — Order not found</li>
+  <li><code>403 Forbidden</code> — User not authorized to cancel this order</li>
+  <li><code>500 Server Error</code> — Could not cancel order</li>
+</ul>
+
+<hr>
+
+<h3>Error Codes Summary</h3>
+<table>
+  <thead>
+    <tr><th>Status Code</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>200</td><td>Success</td></tr>
+    <tr><td>201</td><td>Resource created</td></tr>
+    <tr><td>400</td><td>Bad request</td></tr>
+    <tr><td>403</td><td>Forbidden</td></tr>
+    <tr><td>404</td><td>Resource not found</td></tr>
+    <tr><td>500</td><td>Internal server error</td></tr>
+  </tbody>
+</table>
+
+<!-- Profile Service -->
+<h2>Profile Service API Documentation</h2>
+<p><strong>Base URL:</strong> <code>/api/profile</code></p>
+<p>All responses are in JSON format.<br>All endpoints require Authentication (Bearer Token) and users can only access their own profile via <code>authorizeUser</code> middleware.</p>
+
+<hr>
+
+<h3>Endpoints</h3>
+
+<h4>GET <code>/:userId</code></h4>
+<p>Get user profile</p>
+<p><strong>Description:</strong><br>Fetch profile details for a specific user.</p>
+<p><strong>Authentication:</strong> Required (Bearer Token)</p>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code> — Returns profile details</li>
+  <li><code>404 Not Found</code> — Profile does not exist</li>
+  <li><code>500 Server Error</code> — Could not fetch profile</li>
+</ul>
+
+<hr>
+
+<h4>PUT <code>/:userId</code></h4>
+<p>Update user profile</p>
+<p><strong>Description:</strong><br>Update profile details for the authenticated user. Address updates are handled via separate endpoints.</p>
+<p><strong>Authentication:</strong> Required (Bearer Token)</p>
+<p><strong>Request Body Example:</strong></p>
+<pre><code>{
+  "name": "John Doe",
+  "phone": "1234567890"
+}</code></pre>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code> — Returns updated profile</li>
+  <li><code>500 Server Error</code> — Could not update profile</li>
+</ul>
+
+<hr>
+
+<h4>POST <code>/:userId/address</code></h4>
+<p>Add new address</p>
+<p><strong>Description:</strong><br>Adds a new address to the user's profile. Setting <code>isDefault</code> to true marks this address as default.</p>
+<p><strong>Authentication:</strong> Required (Bearer Token)</p>
+<p><strong>Request Body:</strong></p>
+<pre><code>{
+  "label": "Home",
+  "street": "123 Main St",
+  "city": "New York",
+  "state": "NY",
+  "zip": "10001",
+  "country": "USA",
+  "isDefault": true
+}</code></pre>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>201 Created</code> — Returns updated profile with new address</li>
+  <li><code>404 Not Found</code> — Profile not found</li>
+  <li><code>500 Server Error</code> — Could not add address</li>
+</ul>
+
+<hr>
+
+<h4>PATCH <code>/:userId/address/:addressId</code></h4>
+<p>Update address</p>
+<p><strong>Description:</strong><br>Updates fields for a specific address. Setting <code>isDefault</code> to true marks this address as default.</p>
+<p><strong>Authentication:</strong> Required (Bearer Token)</p>
+<p><strong>Request Body Example:</strong></p>
+<pre><code>{
+  "label": "Work",
+  "city": "San Francisco",
+  "isDefault": true
+}</code></pre>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code> — Returns updated profile</li>
+  <li><code>404 Not Found</code> — Profile or address not found</li>
+  <li><code>500 Server Error</code> — Could not update address</li>
+</ul>
+
+<hr>
+
+<h4>DELETE <code>/:userId/address/:addressId</code></h4>
+<p>Delete address</p>
+<p><strong>Description:</strong><br>Removes a specific address from the user's profile.</p>
+<p><strong>Authentication:</strong> Required (Bearer Token)</p>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code> — Address deleted successfully</li>
+  <li><code>404 Not Found</code> — Profile or address not found</li>
+  <li><code>500 Server Error</code> — Could not delete address</li>
+</ul>
+
+<hr>
+
+<h4>PATCH <code>/:userId/address/:addressId/default</code></h4>
+<p>Set default address</p>
+<p><strong>Description:</strong><br>Marks the specified address as the default address for the user.</p>
+<p><strong>Authentication:</strong> Required (Bearer Token)</p>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code> — Returns updated profile with default address set</li>
+  <li><code>404 Not Found</code> — Profile or address not found</li>
+  <li><code>500 Server Error</code> — Could not update default address</li>
+</ul>
+
+<hr>
+
+<h3>Error Codes</h3>
+<table>
+  <thead>
+    <tr><th>Status Code</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>200</td><td>Success</td></tr>
+    <tr><td>201</td><td>Resource created</td></tr>
+    <tr><td>400</td><td>Bad request (missing fields, invalid input)</td></tr>
+    <tr><td>403</td><td>Forbidden (unauthorized access)</td></tr>
+    <tr><td>404</td><td>Resource not found</td></tr>
+    <tr><td>500</td><td>Internal server error</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Example Usage</h3>
+<p><strong>Add Address (cURL):</strong></p>
+<pre><code>curl -X POST http://localhost:5001/api/profile/USER_ID/address \
+-H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+-H "Content-Type: application/json" \
+-d '{
+  "label": "Home",
+  "street": "123 Main St",
+  "city": "New York",
+  "state": "NY",
+  "zip": "10001",
+  "country": "USA",
+  "isDefault": true
+}'</code></pre>
+
+<hr>
+
+<!-- Restaurant Service -->
+<h2>Restaurant Service API Documentation</h2>
+<p><strong>Base URL:</strong> <code>/api/restaurant</code></p>
+<p>All responses are in JSON format.<br>Role-based access (<code>admin</code> or <code>restaurant employee</code>) required for management endpoints.</p>
+
+<hr>
+
+<h3>Restaurant Management Endpoints</h3>
+
+<h4>GET <code>/:restaurantId</code></h4>
+<p>Get restaurant details</p>
+<p><strong>Access:</strong> Public</p>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code> — Returns restaurant details</li>
+  <li><code>404 Not Found</code> — Restaurant not found</li>
+</ul>
+
+<hr>
+
+<h4>POST <code>/</code></h4>
+<p>Create a new restaurant</p>
+<p><strong>Access:</strong> <code>Admin</code> or <code>Restaurant Employee</code></p>
+<p><strong>Request Body:</strong></p>
+<pre><code>{
+  "name": "string",
+  "address": "string",
+  "description": "string",
+  "categories": ["string"]
+}</code></pre>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>201 Created</code> — Restaurant created</li>
+  <li><code>400 Bad Request</code> — Missing required fields</li>
+  <li><code>500 Server Error</code> — Failed to create restaurant</li>
+</ul>
+
+<hr>
+
+<h4>PUT <code>/:id</code></h4>
+<p>Update restaurant</p>
+<p><strong>Access:</strong> <code>Admin</code> or <code>Restaurant Employee</code></p>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code> — Restaurant updated</li>
+  <li><code>404 Not Found</code> — Restaurant not found</li>
+  <li><code>500 Server Error</code> — Failed to update restaurant</li>
+</ul>
+
+<hr>
+
+<h4>DELETE <code>/:id</code></h4>
+<p>Soft delete restaurant</p>
+<p><strong>Access:</strong> <code>Admin</code> or <code>Restaurant Employee</code></p>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code> — Restaurant deleted</li>
+  <li><code>404 Not Found</code> — Restaurant not found</li>
+  <li><code>500 Server Error</code> — Failed to delete restaurant</li>
+</ul>
+
+<hr>
+
+<h4>GET <code>/</code></h4>
+<p>Get all restaurants</p>
+<p><strong>Access:</strong> Public</p>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code> — Returns array of restaurants (menu excluded)</li>
+  <li><code>500 Server Error</code> — Failed to fetch restaurants</li>
+</ul>
+
+<hr>
+
+<h3>Menu Management Endpoints</h3>
+
+<h4>POST <code>/:restaurantId/menu</code></h4>
+<p>Add menu item (with optional image)</p>
+<p><strong>Access:</strong> <code>Admin</code> or <code>Restaurant Employee</code></p>
+<p><strong>Form Data:</strong></p>
+<ul>
+  <li><code>name</code> (required)</li>
+  <li><code>price</code> (required)</li>
+  <li><code>description</code> (optional)</li>
+  <li><code>image</code> (file, optional)</li>
+</ul>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>201 Created</code> — Item added</li>
+  <li><code>400 Bad Request</code> — Missing or invalid fields</li>
+  <li><code>404 Not Found</code> — Restaurant not found</li>
+  <li><code>500 Server Error</code> — Failed to add item</li>
+</ul>
+
+<hr>
+
+<h4>PUT <code>/:restaurantId/menu/:itemId</code></h4>
+<p>Update menu item</p>
+<p><strong>Access:</strong> <code>Admin</code> or <code>Restaurant Employee</code></p>
+<p><strong>Form Data:</strong></p>
+<ul>
+  <li><code>name</code> (optional)</li>
+  <li><code>price</code> (optional)</li>
+  <li><code>image</code> (file, optional)</li>
+</ul>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code> — Item updated</li>
+  <li><code>404 Not Found</code> — Restaurant or item not found</li>
+  <li><code>500 Server Error</code> — Failed to update item</li>
+</ul>
+
+<hr>
+
+<h4>DELETE <code>/:restaurantId/menu/:itemId</code></h4>
+<p>Soft delete menu item</p>
+<p><strong>Access:</strong> <code>Admin</code> or <code>Restaurant Employee</code></p>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code> — Item deleted</li>
+  <li><code>404 Not Found</code> — Restaurant or item not found</li>
+  <li><code>500 Server Error</code> — Failed to delete item</li>
+</ul>
+
+<hr>
+
+<h4>GET <code>/:restaurantId/menu</code></h4>
+<p>Get active menu items</p>
+<p><strong>Access:</strong> Public</p>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code> — Returns array of active menu items</li>
+  <li><code>404 Not Found</code> — Restaurant not found</li>
+  <li><code>500 Server Error</code> — Failed to fetch menu</li>
+</ul>
+
+<hr>
+
+<h3>Order Management Endpoints (Restaurant Panel)</h3>
+<p><strong>Base URL:</strong> <code>/api/orders</code></p>
+
+<h4>GET <code>/?restaurantId=xyz</code></h4>
+<p>Get pending orders (status <code>placed</code> or <code>preparing</code>)</p>
+<p><strong>Access:</strong> <code>Admin</code> or <code>Restaurant Employee</code></p>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code> — Returns array of pending orders</li>
+  <li><code>400 Bad Request</code> — Missing <code>restaurantId</code></li>
+  <li><code>500 Server Error</code> — Failed to fetch orders</li>
+</ul>
+
+<hr>
+
+<h4>PUT <code>/:orderId</code></h4>
+<p>Update order status (<code>preparing</code>, <code>ready</code>, <code>completed</code>)</p>
+<p><strong>Access:</strong> <code>Admin</code> or <code>Restaurant Employee</code></p>
+<p><strong>Request Body:</strong></p>
+<pre><code>{ "status": "preparing | ready | completed" }</code></pre>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code> — Order updated</li>
+  <li><code>400 Bad Request</code> — Invalid status</li>
+  <li><code>404 Not Found</code> — Order not found</li>
+  <li><code>500 Server Error</code> — Failed to update order</li>
+</ul>
+
+<hr>
+
+<h3>Error Codes</h3>
+<table>
+  <thead>
+    <tr><th>Status</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>200</td><td>Success</td></tr>
+    <tr><td>201</td><td>Resource created</td></tr>
+    <tr><td>400</td><td>Bad request (missing/invalid input)</td></tr>
+    <tr><td>403</td><td>Forbidden (unauthorized access)</td></tr>
+    <tr><td>404</td><td>Resource not found</td></tr>
+    <tr><td>500</td><td>Internal server error</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Example Usage</h3>
+<p><strong>Add Menu Item with Image (cURL):</strong></p>
+<pre><code>curl -X POST http://localhost:5003/api/restaurant/REST_ID/menu \\
+-H "Authorization: Bearer YOUR_ACCESS_TOKEN" \\
+-F "name=Burger" -F "price=10.99" -F "image=@/path/to/image.jpg"</code></pre>
+
+<hr>
+
+<!-- Review Service -->
+<h2>Review Service API Documentation</h2>
+<p><strong>Base URL:</strong> <code>/api/reviews</code></p>
+<p>All responses are JSON formatted.<br>Authentication required (<code>protect</code> middleware) for create, edit, and delete operations.</p>
+
+<hr>
+
+<h3>Endpoints</h3>
+
+<h4>POST <code>/</code></h4>
+<p>Create a new review for a menu item.</p>
+<p><strong>Headers:</strong> Authorization: Bearer &lt;token&gt;</p>
+<p><strong>Request Body:</strong></p>
+<pre><code>{
+  "menuItemId": "string",
+  "rating": number,
+  "comment": "string"
+}</code></pre>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>201 Created</code> — Review added successfully</li>
+  <li><code>500 Internal Server Error</code> — Error creating review</li>
+</ul>
+
+<hr>
+
+<h4>GET <code>/menu-items</code></h4>
+<p>Batch fetch review summaries for multiple menu items.</p>
+<p><strong>Query Parameters:</strong></p>
+<ul>
+  <li><code>ids</code> (comma-separated menu item IDs) — e.g. <code>ids=abc123,def456</code></li>
+</ul>
+<p><strong>Response:</strong></p>
+<pre><code>{
+  "reviews": {
+    "menuItemId1": {
+      "averageRating": number,
+      "totalReviews": number,
+      "recentComments": ["string", "string", "..."]
+    },
+    ...
+  }
+}</code></pre>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code> — Returns review summaries</li>
+  <li><code>500 Internal Server Error</code> — Error fetching reviews</li>
+</ul>
+
+<hr>
+
+<h4>GET <code>/menu-item/:menuItemId</code></h4>
+<p>Fetch detailed reviews for a specific menu item.</p>
+<p><strong>Response:</strong></p>
+<pre><code>{
+  "reviews": [
+    {
+      "_id": "string",
+      "menuItemId": "string",
+      "userId": "string",
+      "rating": number,
+      "comment": "string",
+      "createdAt": "ISODate",
+      ...
+    },
+    ...
+  ]
+}</code></pre>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code> — Returns array of reviews</li>
+  <li><code>500 Internal Server Error</code> — Error fetching reviews</li>
+</ul>
+
+<hr>
+
+<h4>PUT <code>/:reviewId</code></h4>
+<p>Edit an existing review. Only the author can edit.</p>
+<p><strong>Headers:</strong> Authorization: Bearer &lt;token&gt;</p>
+<p><strong>Request Body:</strong></p>
+<pre><code>{
+  "rating": number,
+  "comment": "string"
+}</code></pre>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code> — Review updated successfully</li>
+  <li><code>403 Forbidden</code> — Not authorized to edit</li>
+  <li><code>404 Not Found</code> — Review not found</li>
+  <li><code>500 Internal Server Error</code> — Error updating review</li>
+</ul>
+
+<hr>
+
+<h4>DELETE <code>/:reviewId</code></h4>
+<p>Delete an existing review. Only the author can delete.</p>
+<p><strong>Headers:</strong> Authorization: Bearer &lt;token&gt;</p>
+<p><strong>Responses:</strong></p>
+<ul>
+  <li><code>200 OK</code> — Review deleted successfully</li>
+  <li><code>403 Forbidden</code> — Not authorized to delete</li>
+  <li><code>404 Not Found</code> — Review not found</li>
+  <li><code>500 Internal Server Error</code> — Error deleting review</li>
+</ul>
+
+<hr>
+
+<h3>Error Codes Summary</h3>
+<table>
+  <thead>
+    <tr><th>Status Code</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>200</td><td>Success</td></tr>
+    <tr><td>201</td><td>Resource created</td></tr>
+    <tr><td>403</td><td>Forbidden (authorization error)</td></tr>
+    <tr><td>404</td><td>Resource not found</td></tr>
+    <tr><td>500</td><td>Internal server error</td></tr>
+  </tbody>
+</table>
+
+
+</body>
+</html>
